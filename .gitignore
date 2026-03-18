@@ -214,19 +214,19 @@ __marimo__/
 # GCP service account keys — never commit these
 # Exception (!) for the example key included for testing and demonstration purposes
 *.json
-!dbt/profiles_example.json
+!03_dbt/profiles_example.json
  
 # Terraform state and sensitive files
-terraform/.terraform/
-terraform/.terraform.lock.hcl
-terraform/terraform.tfstate
-terraform/terraform.tfstate.backup
-terraform/*.tfvars
+01_terraform/.terraform/
+01_terraform/.terraform.lock.hcl
+01_terraform/terraform.tfstate
+01_terraform/terraform.tfstate.backup
+01_terraform/*.tfvars
  
 # dbt compiled artifacts and logs — these can be regenerated and may contain sensitive info
-dbt/target/
-dbt/dbt_packages/
-dbt/logs/
+03_dbt/target/
+03_dbt/dbt_packages/
+03_dbt/logs/
  
 # Parquet / data files (in case any end up locally)
 *.parquet
@@ -241,4 +241,4 @@ keys/*
 FOR_REF_ONLY.md
 
 # 
-.DS_store
+.DS_Store
