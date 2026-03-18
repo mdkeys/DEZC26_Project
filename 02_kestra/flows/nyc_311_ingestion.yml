@@ -1,0 +1,89 @@
+id: nyc_311_ingestion
+namespace: nyc_311
+
+description: |
+  Extracts NYC 311 service request data from the Socrata API month by month,
+  converts to Parquet, uploads to GCS, and creates/refreshes the BigQuery
+  external table pointing at the GCS data.
+
+  Run modes:
+  - Backfill: triggered manually with no inputs (processes 2020-01 to last completed month)
+  - Single month: triggered manually with year + month inputs (for testing or reruns)
+
+inputs:
+  - id: year
+    type: INT
+    required: false
+    description: "Year to process (e.g. 2022). Leave blank for full backfill."
+
+  - id: month
+    type: INT
+    required: false
+    description: "Month to process (e.g. 6). Leave blank for full backfill."
+
+tasks:
+
+  # ------------------------------------------------------------------
+  # Task 1: Extract from Socrata API and upload Parquet files to GCS
+  # ------------------------------------------------------------------
+  - id: extract_and_upload
+    type: io.kestra.plugin.scripts.python.Commands
+    namespaceFiles:
+      enabled: true
+    containerImage: python:3.11-slim
+    beforeCommands:
+      - pip install requests pandas pyarrow python-dotenv google-cloud-storage python-dateutil --quiet
+    commands:
+      - |
+        if [ -n "{{ inputs.year }}" ] && [ -n "{{ inputs.month }}" ]; then
+          echo "Running single month: {{ inputs.year }}-{{ inputs.month }}"
+          python extract_311.py --year {{ inputs.year }} --month {{ inputs.month }}
+        else
+          echo "Running full backfill from 2020-01 to last completed month"
+          python extract_311.py
+        fi
+    env:
+      SOCRATA_APP_TOKEN: "{{ secret('SOCRATA_APP_TOKEN') }}"
+      GCS_BUCKET_NAME: "{{ secret('GCS_BUCKET_NAME') }}"
+      GCS_PREFIX: "nyc_311"
+      GCP_SERVICE_ACCOUNT: "{{ secret('GCP_SERVICE_ACCOUNT') }}"
+
+  # ------------------------------------------------------------------
+  # Task 2: Create or replace BigQuery external table over GCS Parquet
+  # ------------------------------------------------------------------
+  - id: create_external_table
+    type: io.kestra.plugin.gcp.bigquery.Query
+    serviceAccount: "{{ secret('GCP_SERVICE_ACCOUNT') }}"
+    projectId: "{{ secret('GCP_PROJECT_ID') }}"
+    sql: |
+      CREATE OR REPLACE EXTERNAL TABLE `{{ secret('GCP_PROJECT_ID') }}.nyc_311_raw.external_311_requests`
+      WITH PARTITION COLUMNS (
+        year  INT64,
+        month INT64
+      )
+      OPTIONS (
+        format              = 'PARQUET',
+        uris = ['gs://{{ secret("GCS_BUCKET_NAME") }}/nyc_311/*'],hive_partition_uri_prefix = 'gs://{{ secret("GCS_BUCKET_NAME") }}/nyc_311',
+        require_hive_partition_filter = false
+      );
+
+  # ------------------------------------------------------------------
+  # Task 3: Log completion
+  # ------------------------------------------------------------------
+  - id: log_success
+    type: io.kestra.plugin.core.log.Log
+    message: |
+      Pipeline complete.
+      Year input:  {{ inputs.year ?? 'backfill' }}
+      Month input: {{ inputs.month ?? 'backfill' }}
+      External table: nyc_311_raw.external_311_requests
+
+# ------------------------------------------------------------------
+# Schedule: run on the 2nd of each month at 6am UTC
+# Pulls the previous month's complete data
+# ------------------------------------------------------------------
+triggers:
+  - id: monthly_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 6 2 * *"
+    disabled: false   # enable this (change to 'false') once backfill is complete

@@ -1,0 +1,9 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# terraform.tfvars is in .gitignore and will never be committed.
+
+credentials_file = "/path/to/your/service-account-key.json"
+project_id       = "your-gcp-project-id"
+region           = "us-east1"
+gcs_bucket_name  = "nyc-311-yourname-2024"   # must be globally unique
+bq_raw_dataset   = "nyc_311_raw"
+bq_prod_dataset  = "nyc_311_prod"

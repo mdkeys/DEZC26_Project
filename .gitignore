@@ -135,6 +135,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+.env_encoded
 .env
 .envrc
 .venv
@@ -205,3 +206,39 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# -------------------------------------------------------------------
+# Project-specific additions for DEZC26_Project
+# -------------------------------------------------------------------
+ 
+# GCP service account keys — never commit these
+# Exception (!) for the example key included for testing and demonstration purposes
+*.json
+!dbt/profiles_example.json
+ 
+# Terraform state and sensitive files
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/*.tfvars
+ 
+# dbt compiled artifacts and logs — these can be regenerated and may contain sensitive info
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+ 
+# Parquet / data files (in case any end up locally)
+*.parquet
+*.csv
+data/
+
+# Keys
+keys/
+keys/*
+
+# Notes for my own reference; do not upload
+FOR_REF_ONLY.md
+
+# 
+.DS_store
