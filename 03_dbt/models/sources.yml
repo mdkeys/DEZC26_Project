@@ -1,0 +1,49 @@
+version: 2
+
+sources:
+  - name: nyc_311_raw
+    description: "Raw NYC 311 service request data loaded from GCS Parquet files via BigQuery external table."
+    database: "{{ env_var('DBT_PROJECT_ID') }}"
+    schema: nyc_311_raw
+    tables:
+      - name: external_311_requests
+        description: "External table pointing at Hive-partitioned Parquet files in GCS. One row per 311 service request from 2020 to present."
+        columns:
+          - name: unique_key
+            description: "Unique identifier for each service request."
+          - name: created_date
+            description: "Timestamp when the service request was created."
+          - name: closed_date
+            description: "Timestamp when the service request was closed. Null if still open."
+          - name: complaint_type
+            description: "Primary category of the complaint."
+          - name: descriptor
+            description: "Sub-category or additional detail about the complaint."
+          - name: location_type
+            description: "Type of location where the complaint was filed (e.g. Street, Residential Building)."
+          - name: status
+            description: "Current status of the request (e.g. Open, Closed, Pending)."
+          - name: agency
+            description: "Code of the city agency responsible for handling the request."
+          - name: borough
+            description: "NYC borough where the complaint was filed."
+          - name: incident_zip
+            description: "ZIP code of the incident location."
+          - name: community_board
+            description: "NYC community board district number."
+          - name: council_district
+            description: "NYC city council district number."
+          - name: police_precinct
+            description: "NYPD precinct number for the incident location."
+          - name: due_date
+            description: "Target date by which the agency should resolve the request."
+          - name: city
+            description: "City name of the incident location."
+          - name: latitude
+            description: "Latitude coordinate of the incident location."
+          - name: longitude
+            description: "Longitude coordinate of the incident location."
+          - name: year
+            description: "Hive partition column — year extracted from created_date."
+          - name: month
+            description: "Hive partition column — month extracted from created_date."

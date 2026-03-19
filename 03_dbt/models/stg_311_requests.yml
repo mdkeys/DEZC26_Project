@@ -1,0 +1,46 @@
+version: 2
+
+models:
+  - name: stg_311_requests
+    description: "Cleaned and typed staging layer for NYC 311 service requests. One row per request. Filters out rows with null unique keys, null created dates, and invalid boroughs."
+    columns:
+      - name: unique_key
+        description: "Unique identifier for each service request."
+        tests:
+          - not_null
+          - unique
+
+      - name: created_date
+        description: "Timestamp when the service request was created."
+        tests:
+          - not_null
+
+      - name: complaint_type
+        description: "Primary category of the complaint."
+        tests:
+          - not_null
+
+      - name: status
+        description: "Lowercased status of the request."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['open', 'closed', 'pending', 'in progress', 'assigned']
+
+      - name: borough
+        description: "Uppercased and trimmed NYC borough name."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['MANHATTAN', 'BROOKLYN', 'QUEENS', 'BRONX', 'STATEN ISLAND']
+
+      - name: agency
+        description: "Code of the city agency responsible for the request."
+        tests:
+          - not_null
+
+      - name: latitude
+        description: "Latitude coordinate — must be within NYC bounds if present."
+
+      - name: longitude
+        description: "Longitude coordinate — must be within NYC bounds if present."
