@@ -30,6 +30,8 @@ renamed as (
         -- complaint details
         complaint_type,
         descriptor,
+        descriptor_2,
+        resolution_description,
         location_type,
         lower(status)                    as status,
 

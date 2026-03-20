@@ -19,6 +19,10 @@ sources:
             description: "Primary category of the complaint."
           - name: descriptor
             description: "Sub-category or additional detail about the complaint."
+          - name: descriptor_2
+            description: "Secondary descriptor providing additional detail about the complaint."
+          - name: resolution_description
+            description: "Free-text description of how the complaint was resolved."
           - name: location_type
             description: "Type of location where the complaint was filed (e.g. Street, Residential Building)."
           - name: status

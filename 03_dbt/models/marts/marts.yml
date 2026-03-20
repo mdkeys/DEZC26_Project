@@ -1,11 +1,11 @@
 version: 2
 
 models:
-  - name: mart_complaints_by_borough
-    description: "Aggregated 311 complaint volume and resolution metrics by borough, month, and complaint type. Partitioned by year, clustered by borough and complaint_type."
+  - name: mart_heat_hotwater
+    description: "Monthly heat & hot water complaint volume by borough and season from 2020 to present. Used for Analysis 1: Heat & Hot Water Failure Patterns."
     columns:
       - name: borough
-        description: "NYC borough name."
+        description: "NYC borough."
         tests:
           - not_null
           - accepted_values:
@@ -18,67 +18,48 @@ models:
         description: "Month of the complaint."
         tests:
           - not_null
-      - name: complaint_type
-        description: "Primary complaint category."
+      - name: season
+        description: "Whether the month falls within NYC heat season (Oct-May) or not."
         tests:
           - not_null
+          - accepted_values:
+              values: ['heat season', 'non-heat season']
       - name: total_complaints
-        description: "Total number of complaints for this borough/month/complaint_type combination."
+        description: "Total heat/hot water complaints for this borough/month."
         tests:
           - not_null
-      - name: pct_resolved
-        description: "Percentage of complaints resolved."
-      - name: avg_resolution_days
-        description: "Average number of days to resolve a complaint."
 
-  - name: mart_complaint_types
-    description: "Aggregated complaint volume and resolution metrics by complaint type, descriptor, and borough. Useful for identifying the most common and slowest-to-resolve complaint categories."
+  - name: mart_housing_response_times
+    description: "Average resolution times for housing maintenance complaints by borough, complaint type, and year. Used for Analysis 2: Housing Maintenance Response Times."
     columns:
+      - name: borough
+        description: "NYC borough."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['MANHATTAN', 'BROOKLYN', 'QUEENS', 'BRONX', 'STATEN ISLAND']
       - name: complaint_type
-        description: "Primary complaint category."
+        description: "Housing maintenance complaint category."
+        tests:
+          - not_null
+      - name: year
+        description: "Year of the complaints."
         tests:
           - not_null
       - name: total_complaints
-        description: "Total number of complaints for this combination."
+        description: "Total complaints for this borough/complaint_type/year."
         tests:
           - not_null
       - name: avg_resolution_days
         description: "Average days to resolve — null if no resolved complaints in this group."
       - name: pct_resolved
-        description: "Percentage of complaints in this group that have been resolved."
+        description: "Percentage of complaints resolved."
 
-  - name: mart_agency_performance
-    description: "Agency-level performance metrics including complaint volume, resolution rate, and average resolution time. Partitioned by year, clustered by agency and complaint_type."
+  - name: mart_chronic_hotspots
+    description: "Community districts with chronic housing maintenance complaint patterns across multiple years. Used for Analysis 3: Chronic Housing Complaint Hotspots."
     columns:
-      - name: agency
-        description: "City agency code."
-        tests:
-          - not_null
-      - name: total_complaints
-        description: "Total complaints handled by this agency."
-        tests:
-          - not_null
-      - name: pct_resolved
-        description: "Percentage of complaints resolved by this agency."
-      - name: avg_resolution_days
-        description: "Average days to resolve a complaint for this agency."
-      - name: pct_resolved_within_30_days
-        description: "Percentage of resolved complaints closed within 30 days."
-
-  - name: mart_complaints_geo
-    description: "Individual complaint records with valid coordinates for geographic mapping. Filtered to NYC bounding box. Partitioned by year, clustered by borough and complaint_type."
-    columns:
-      - name: unique_key
-        description: "Unique identifier for the service request."
-        tests:
-          - not_null
-          - unique
-      - name: latitude
-        description: "Latitude coordinate — guaranteed non-null and within NYC bounds."
-        tests:
-          - not_null
-      - name: longitude
-        description: "Longitude coordinate — guaranteed non-null and within NYC bounds."
+      - name: community_board
+        description: "NYC community board district."
         tests:
           - not_null
       - name: borough
@@ -86,6 +67,39 @@ models:
         tests:
           - not_null
       - name: complaint_type
-        description: "Primary complaint category."
+        description: "Housing maintenance complaint category."
+        tests:
+          - not_null
+      - name: is_chronic_hotspot
+        description: "True if this district appears in the top 25% of complaint volume for 3+ years."
+        tests:
+          - not_null
+      - name: total_complaints_all_years
+        description: "Total complaints across all years of data."
+        tests:
+          - not_null
+
+  - name: mart_complaints_geo
+    description: "Individual housing maintenance complaint records with valid NYC coordinates for geographic heatmap. Filtered to housing complaint types and NYC bounding box."
+    columns:
+      - name: unique_key
+        description: "Unique identifier for the service request."
+        tests:
+          - not_null
+          - unique
+      - name: latitude
+        description: "Latitude — non-null and within NYC bounds."
+        tests:
+          - not_null
+      - name: longitude
+        description: "Longitude — non-null and within NYC bounds."
+        tests:
+          - not_null
+      - name: borough
+        description: "NYC borough."
+        tests:
+          - not_null
+      - name: complaint_type
+        description: "Housing maintenance complaint type."
         tests:
           - not_null
