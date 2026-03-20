@@ -25,7 +25,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['open', 'closed', 'pending', 'in progress', 'assigned']
+              values: ['open', 'closed', 'pending', 'in progress', 'assigned', 'started', 'unspecified']
 
       - name: borough
         description: "Uppercased and trimmed NYC borough name."

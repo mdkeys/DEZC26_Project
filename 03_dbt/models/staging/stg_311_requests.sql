@@ -8,6 +8,15 @@ with source as (
     select * from {{ source('nyc_311_raw', 'external_311_requests') }}
 ),
 
+deduplicated as (
+    select *,
+        row_number() over (
+            partition by unique_key
+            order by created_date desc
+        ) as row_num
+    from source
+),
+
 renamed as (
     select
         -- identifiers
@@ -31,8 +40,12 @@ renamed as (
         upper(trim(borough))             as borough,
         incident_zip,
         community_board,
-        cast(council_district as int64)  as council_district,
-        cast(police_precinct  as int64)  as police_precinct,
+        safe_cast(
+            regexp_extract(council_district, r'(\d+)') as int64
+        )                                as council_district,
+        safe_cast(
+            regexp_extract(police_precinct, r'(\d+)') as int64
+        )                                as police_precinct,
         city,
         cast(latitude  as float64)       as latitude,
         cast(longitude as float64)       as longitude,
@@ -41,12 +54,11 @@ renamed as (
         cast(year  as int64)             as year,
         cast(month as int64)             as month
 
-    from source
+    from deduplicated
     where
-        -- exclude rows with no unique key or created date
-        unique_key   is not null
+        row_num = 1
+        and unique_key   is not null
         and created_date is not null
-        -- exclude invalid borough values
         and upper(trim(borough)) in (
             'MANHATTAN', 'BROOKLYN', 'QUEENS', 'BRONX', 'STATEN ISLAND'
         )
