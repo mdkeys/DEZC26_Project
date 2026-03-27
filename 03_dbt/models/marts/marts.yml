@@ -55,30 +55,6 @@ models:
       - name: pct_resolved
         description: "Percentage of complaints resolved."
 
-  - name: mart_chronic_hotspots
-    description: "Community districts with chronic housing maintenance complaint patterns across multiple years. Used for Analysis 3: Chronic Housing Complaint Hotspots."
-    columns:
-      - name: community_board
-        description: "NYC community board district."
-        tests:
-          - not_null
-      - name: borough
-        description: "NYC borough."
-        tests:
-          - not_null
-      - name: complaint_type
-        description: "Housing maintenance complaint category."
-        tests:
-          - not_null
-      - name: is_chronic_hotspot
-        description: "True if this district appears in the top 25% of complaint volume for 3+ years."
-        tests:
-          - not_null
-      - name: total_complaints_all_years
-        description: "Total complaints across all years of data."
-        tests:
-          - not_null
-
   - name: mart_complaints_geo
     description: "Individual housing maintenance complaint records with valid NYC coordinates for geographic heatmap. Filtered to housing complaint types and NYC bounding box."
     columns:
