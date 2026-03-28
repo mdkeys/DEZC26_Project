@@ -31,6 +31,7 @@ response_times as (
         borough,
         complaint_category,
         year,
+        month,
 
         count(unique_key)                                       as total_complaints,
         countif(is_resolved)                                    as resolved_complaints,
@@ -50,11 +51,12 @@ response_times as (
         )                                                       as pct_resolved_within_30_days
 
     from enriched
-    where complaint_category in {{ housing_complaint_types() }}
+    where complaint_type in {{ housing_complaint_types() }}
     group by
         borough,
         complaint_category,
-        year
+        year,
+        month
 )
 
 select * from response_times
