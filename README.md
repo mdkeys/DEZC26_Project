@@ -21,9 +21,9 @@ Given the city's budget deficit,[^2] it is necessary for the city to understand 
 
 This project builds a data pipeline to analyze:
 
-1. **Seasonal patterns in housing complaint categories:** Which complaint categories follow a seasonal pattern?
-2. **Seasonal patterns in heat & hot water issues, by borough:** Are there differences in the seasonal patterns or number of complaints related to heat & hot water issues by borough? 
-3. **Resolution times to housing complaint categories, by borough:** What are the average resolution times to different categories of 311 requests? Are there differences in resolution time by borough?
+1. **Seasonal patterns:** Which complaint categories follow a seasonal pattern?
+2. **Heat & hot water complaints:** Are there differences between boroughs in the seasonal patterns or number of complaints related to heat & hot water issues? 
+3. **Resolution times:** What are the average resolution times to different categories of 311 requests? Are there differences in resolution time by borough?
 4. **Geographic heatmap:** What is the spatial distribution of all housing-related complaints across NYC? Are there any notable areas with a high number of complaints?
 
 ---
@@ -34,13 +34,13 @@ This project builds a data pipeline to analyze:
 
 ![Dashboard Screenshot](images/Tile1.png)
 
-**Seasonal patterns in housing complaint categories:** 
+**Seasonal patterns only appear for heat & hot water complaints.** 
 The first figure displays the number of 311 complaints by complaint category over time. While 'heat / hot water' complaints show a clear seasonal pattern with peaks between the fall and spring months (~September to May), other categories of housing complaints do not show a clear seasonal pattern. 
 
 
 ![Dashboard Screenshot](images/Tile2.png)
 
-**Seasonal patterns in heat & hot water issues, by borough:** 
+**Seasonal patterns in heat & hot water issues are similar across boroughs.** 
 Drilling into heat and hot water complaints, we see the seasonal trend is similar across all five boroughs. Despite the Bronx having the second lowest population of the boroughs,[^4] Bronx residents consistently report the highest number of 311 complaints related to heat and hot water. 
 
 _In a separate analysis of the data,[^5] we see the number of heat and hot water complaints has been steadily increasing over time. The number of complaints in 2025 nearly doubled the number reported in 2020 (315k and 165k, respectively). The city faced an especially harsh winter season at the start of 2026 with two major storms and multiple cold fronts hitting the city. This accounts for the 30k complaint increase in the number of heat and hot water complaints reported in the first two months of 2026 than the prior year._ 
@@ -48,13 +48,13 @@ _In a separate analysis of the data,[^5] we see the number of heat and hot water
 
 ![Dashboard Screenshot](images/Tile3.png)
 
-**Resolution times to housing complaint categories, by borough:**
+**Resolution times are low for heat & hot water complaints. Manhattan has higher average resolution times across other complaint categories.**
 Looking at agency's resolution times to different complaints acorss the five boroughs, there is a noticable difference in the urgency with which agencies respond to heat and hot water complaints (average of 2-3 days across all boroughs) than other categories of complaints. Across electric/appliance and other complaint categories, Manhattan appears to be an outlier with an average resolution time of 10 or more days longer than what residents of the other boroughs experience. On average, plumbing and water leak issues take an additional week in Manhattan compared to other boroughs. Elevator repairs appear to take longer on average across all boroughs (30+ days) compared to other complaint types. 
 
 
 ![Dashboard Screenshot](images/Tile4.png)
 
-**Geographic heatmap:**
+**A geographic heatmap shows a couple of hotspots in the Bronx for high complaint volumes.**
 At a glance, upper Manhattan and the Bronx, along with central parts of Brooklyn (Flatbush, Crown Heights) appear to be sources for a larger number of 311 complaints across NYC. When zooming in on the [Live Dashboard](https://lookerstudio.google.com/reporting/c71e9a02-354d-4846-86e3-af7d35012d9f), there are two very noticable hotspots in the Bronx with a concentration of over 20k complaints over the Jan 2020 - Feb 2026 time period (Tiebout Ave north of E 181st St, and Woodycrest Ave north of W 162nd St.) 
 
 
@@ -90,47 +90,11 @@ At a glance, upper Manhattan and the Bronx, along with central parts of Brooklyn
 | Transformation | dbt Cloud | Cleans, enriches, and aggregates data into mart tables |
 | Dashboard | Looker Studio | Visualizes housing complaint trends and hotspots |
 
----
+- **Terraform** is used to provision the cloud infrastructure on GCP: creates a GCS bucket (the data lake) and two BigQuery datasets (nyc_311_raw, nyc_311_prod).
+- **Kestra**, running locally via Docker, orchestrates the data pipeline: It executes extract_311.py which pulls NYC 311 service request data from the Socrata API month by month, converts it to Parquet files, and uploads them to GCS partitioned by year and month. Kestra then creates a BigQuery external table in nyc_311_raw that points directly at those Parquet files in GCS, making the raw data queryable without loading it into BigQuery storage. 
+- **dbt Cloud** connects to BigQuery and runs the transformation layer: A staging model cleans and casts the raw data, an intermediate model enriches it with derived fields like resolution time and complaint flags, and three mart models aggregate the data into analysis-ready tables in nyc_311_prod.
+- **Looker Studio** connects directly to the mart tables in BigQuery to power a dashboard with three tiles analyzing heat and hot water failure patterns, housing maintenance response times, and a geographic heatmap of housing complaints across NYC.
 
-## Repo Structure
-
-```
-DEZC26_Project/
-├── 00_scripts/
-│   └── extract_311.py          # Socrata API extractor → GCS
-├── 01_terraform/
-│   ├── main.tf                 # GCS bucket + BigQuery datasets
-│   ├── variables.tf
-│   ├── outputs.tf
-│   └── terraform.tfvars.example
-├── 02_kestra/
-│   ├── docker-compose.yml      # Kestra + Postgres containers
-│   └── flows/
-│       └── nyc_311_ingestion.yml  # Orchestration flow
-├── 03_dbt/
-│   ├── dbt_project.yml
-│   ├── macros/
-│   │   └── housing_complaint_types.sql
-│   └── models/
-│       ├── sources.yml
-│       ├── staging/
-│       │   ├── stg_311_requests.sql
-│       │   └── stg_311_requests.yml
-│       ├── intermediate/
-│       │   └── int_requests_enriched.sql
-│       └── marts/
-│           ├── mart_heat_hotwater.sql
-│           ├── mart_housing_response_times.sql
-│           ├── mart_complaints_geo.sql
-│           └── marts.yml
-├── .env.example
-├── .gitignore
-└── README.md
-```
-
----
-
-## Setup Overview:
 
 ### GCS
 
@@ -172,13 +136,7 @@ BigQuery tables are partitioned and clustered to optimize query performance and 
 
 # Reproducing This Project 
 
-## Overview:
-- **Terraform** is used to provision the cloud infrastructure on GCP: creates a GCS bucket (the data lake) and two BigQuery datasets (nyc_311_raw, nyc_311_prod).
-- **Kestra**, running locally via Docker, orchestrates the data pipeline: It executes extract_311.py which pulls NYC 311 service request data from the Socrata API month by month, converts it to Parquet files, and uploads them to GCS partitioned by year and month. Kestra then creates a BigQuery external table in nyc_311_raw that points directly at those Parquet files in GCS, making the raw data queryable without loading it into BigQuery storage. 
-- **dbt Cloud** connects to BigQuery and runs the transformation layer: A staging model cleans and casts the raw data, an intermediate model enriches it with derived fields like resolution time and complaint flags, and three mart models aggregate the data into analysis-ready tables in nyc_311_prod.
-- **Looker Studio** connects directly to the mart tables in BigQuery to power a dashboard with three tiles analyzing heat and hot water failure patterns, housing maintenance response times, and a geographic heatmap of housing complaints across NYC.
-
-### Prerequisites
+## Prerequisites
 - GCP account with billing enabled
 - Terraform >= 1.0
 - Docker Desktop
@@ -192,6 +150,43 @@ The following steps assume that you are starting from scratch and do not have ac
 git clone https://github.com/your-username/DEZC26_Project.git
 cd DEZC26_Project
 ```
+
+### Repo Structure
+
+```
+DEZC26_Project/
+├── 00_scripts/
+│   └── extract_311.py          # Socrata API extractor → GCS
+├── 01_terraform/
+│   ├── main.tf                 # GCS bucket + BigQuery datasets
+│   ├── variables.tf
+│   ├── outputs.tf
+│   └── terraform.tfvars.example
+├── 02_kestra/
+│   ├── docker-compose.yml      # Kestra + Postgres containers
+│   └── flows/
+│       └── nyc_311_ingestion.yml  # Orchestration flow
+├── 03_dbt/
+│   ├── dbt_project.yml
+│   ├── macros/
+│   │   └── housing_complaint_types.sql
+│   └── models/
+│       ├── sources.yml
+│       ├── staging/
+│       │   ├── stg_311_requests.sql
+│       │   └── stg_311_requests.yml
+│       ├── intermediate/
+│       │   └── int_requests_enriched.sql
+│       └── marts/
+│           ├── mart_heat_hotwater.sql
+│           ├── mart_housing_response_times.sql
+│           ├── mart_complaints_geo.sql
+│           └── marts.yml
+├── .env.example
+├── .gitignore
+└── README.md
+```
+
 
 ## Step 2: Obtain Socrata app token for NYC Open Data
 1. Go to https://data.cityofnewyork.us and sign in or create a free account
