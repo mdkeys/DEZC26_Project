@@ -2,9 +2,14 @@
 
 ## About: 
 
-This final project for the 2026 Data Engineering Zoomcamp consists of an end-to-end pipeline analyzing NYC 311 housing-related maintenance complaints from 2020 to present. The project focuses on seasonal heat & hot water issues and complaint resolution times to categories of housing-related complaints logged in the 311 system. 
+This final project for the 2026 Data Engineering Zoomcamp consists of an end-to-end pipeline analyzing NYC 311 housing-related maintenance complaints from 2020 to present. Given the primary purpose of this project is to demonstrate the ability to build a reproducible data pipeline, the analysis has been kept at a high level.
 
-_Note: The primary purpose of this project is to demonstrate the ability to build a reproducible data pipeline. Given this, the actual analysis is being kept at a high-level._
+## Table of Contents
+- [Background & Problem Statement](#background--problem-statement)
+- [Dashboard](#dashboard)
+- [Data Source](#data-source)
+- [Pipeline Details](#pipeline-details)
+- [Reproducibility](#reproducibility)
 
 ---
 
@@ -12,7 +17,7 @@ _Note: The primary purpose of this project is to demonstrate the ability to buil
 
 New York City (NYC) is the most populous city in the United States with 8.5 million residents living within the five boroughs (Manhattan, Queens, Bronx, Brooklyn, and Staten Island)[^1]. The NYC 311 system receives hundreds of thousands of housing-related complaints every year. Some of these complaints, such as heat and hot water, tend to be seasonal in nature, rising during the colder months. Other complaints, such as issues with plumbing, interior and electric repairs, elevators, and unsanitary conditions, are less likely to follow a predictable seasonal pattern. 
 
-Given the city's budget deficit,[^2] it is necessary for the city to understand the pattern of housing-related complaints in order to allocate resources efficiently. Additionally, given the vast area that NYC covers (300 square miles over the five boroughs),[^1] the 311 data allows city officials a glance at where complaints are occuring and if there are disparities in the resolution times between the five boroughs.
+Given the city's budget deficit,[^2] it is necessary for the city to understand the pattern of housing-related complaints in order to allocate resources efficiently. Additionally, given the vast area that NYC covers (300 square miles over the five boroughs),[^3] the 311 data allows city officials a glance at where complaints are occuring and if there are disparities in the resolution times between the five boroughs.
 
 This project builds a data pipeline to analyze:
 
@@ -32,22 +37,26 @@ This project builds a data pipeline to analyze:
 **Seasonal patterns in housing complaint categories:** 
 The first figure displays the number of 311 complaints by complaint category over time. While 'heat / hot water' complaints show a clear seasonal pattern with peaks between the fall and spring months (~September to May), other categories of housing complaints do not show a clear seasonal pattern. 
 
+
 ![Dashboard Screenshot](images/Tile2.png)
 
 **Seasonal patterns in heat & hot water issues, by borough:** 
-Drilling into heat and hot water complaints, we see the seasonal trend is similar across all five boroughs. Despite the Bronx having the second lowest population of the boroughs,[^3] Bronx residents consistently report the highest number of 311 complaints related to heat and hot water. 
+Drilling into heat and hot water complaints, we see the seasonal trend is similar across all five boroughs. Despite the Bronx having the second lowest population of the boroughs,[^4] Bronx residents consistently report the highest number of 311 complaints related to heat and hot water. 
 
-_In a separate analysis of the data,[^4] we see the number of heat and hot water complaints has been steadily increasing over time. The number of complaints in 2025 nearly doubled the number reported in 2020 (315k and 165k, respectively). The city faced an especially harsh winter season at the start of 2026 with two major storms and multiple cold fronts hitting the city. This accounts for the 30k complaint increase in the number of heat and hot water complaints reported in the first two months of 2026 than the prior year._ 
+_In a separate analysis of the data,[^5] we see the number of heat and hot water complaints has been steadily increasing over time. The number of complaints in 2025 nearly doubled the number reported in 2020 (315k and 165k, respectively). The city faced an especially harsh winter season at the start of 2026 with two major storms and multiple cold fronts hitting the city. This accounts for the 30k complaint increase in the number of heat and hot water complaints reported in the first two months of 2026 than the prior year._ 
+
 
 ![Dashboard Screenshot](images/Tile3.png)
 
 **Resolution times to housing complaint categories, by borough:**
 Looking at agency's resolution times to different complaints acorss the five boroughs, there is a noticable difference in the urgency with which agencies respond to heat and hot water complaints (average of 2-3 days across all boroughs) than other categories of complaints. Across electric/appliance and other complaint categories, Manhattan appears to be an outlier with an average resolution time of 10 or more days longer than what residents of the other boroughs experience. On average, plumbing and water leak issues take an additional week in Manhattan compared to other boroughs. Elevator repairs appear to take longer on average across all boroughs (30+ days) compared to other complaint types. 
 
+
 ![Dashboard Screenshot](images/Tile4.png)
 
 **Geographic heatmap:**
 At a glance, upper Manhattan and the Bronx, along with central parts of Brooklyn (Flatbush, Crown Heights) appear to be sources for a larger number of 311 complaints across NYC. When zooming in on the [Live Dashboard](https://lookerstudio.google.com/reporting/c71e9a02-354d-4846-86e3-af7d35012d9f), there are two very noticable hotspots in the Bronx with a concentration of over 20k complaints over the Jan 2020 - Feb 2026 time period (Tiebout Ave north of E 181st St, and Woodycrest Ave north of W 162nd St.) 
+
 
 **Take-aways:**
 - **Heat and hot water complaints:** Agencies responsible for heat and hot water complaints should structure their resources to meet increased demand during the peak months (Sept - May). At present, these agencies appear to be effectively addressing the heat and hot water issues in a timely manner across all boroughs (average of 2 days). The city may want to investigate the disproportionately high number of complaints reported from Bronx residents.
@@ -61,8 +70,8 @@ At a glance, upper Manhattan and the Bronx, along with central parts of Brooklyn
 - **Dataset:** [NYC 311 Service Requests from 2020 to Present](https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2020-to-Present/erm2-nwe9)
 - **Provider:** NYC Open Data (Socrata API)
 - **Update frequency:** Daily
-  - However this project updates on a monthly basis, updating on the 2nd of each month.
-- **Columns used:** 19 selected columns: unique_key, created_date, closed_date, complaint_type, descriptor,descriptor_2, resolution_description, location_type, status, agency, borough, incident_zip, community_board, council_district, police_precinct, due_date, city, latitude, longitude
+  - Note: This project updates on a monthly basis, updating on the 2nd of each month.
+- **Columns used:** 19 selected columns: unique_key, created_date, closed_date, complaint_type, descriptor, descriptor_2, resolution_description, location_type, status, agency, borough, incident_zip, community_board, council_district, police_precinct, due_date, city, latitude, longitude
 - **Housing complaint types analyzed:** HEAT/HOT WATER, PLUMBING, WATER LEAK, FLOORING/STAIRS, ELECTRIC, APPLIANCE, PAINT/PLASTER, DOOR/WINDOW, UNSANITARY CONDITION, GENERAL, Elevator
 - **(Derived Column) Housing complaint categories:** 'HEAT_HOTWATER' (HEAT/HOT WATER), 'PLUMBING_WATERLEAK' (PLUMBING, WATER LEAK), 'ELECTRIC_APPLIANCE' (ELECTRIC, APPLIANCE), 'ELEVATOR' ('Elevator'), 'OTHER' (DOOR/WINDOW, FLOORING/STAIRS, GENERAL, PAINT/PLASTER, UNSANITARY CONDITION)
 
@@ -71,8 +80,6 @@ At a glance, upper Manhattan and the Bronx, along with central parts of Brooklyn
 # Pipeline Details
 
 ## Architecture
-
-![Architecture Diagram](images/architecture.png)
 
 | Layer | Tool | Purpose |
 |---|---|---|
@@ -417,5 +424,6 @@ When you no longer need this project active, do the following to reduce your res
 
 [^1]:[Wikipedia - New York City](https://en.wikipedia.org/wiki/New_York_City)
 [^2]:[NYS Comptroller - NYC Budget Reveals Structural Gaps](https://www.osc.ny.gov/press/releases/2026/03/dinapoli-nyc-budget-increases-transparency-reveals-structural-gaps)
-[^3]:[Wikipedia - Boroughs of NYC](https://en.wikipedia.org/wiki/Boroughs_of_New_York_City)
-[^4]: Calculated through data queried in the NYC 311 data: `SELECT year, month, SUM(total_complaints) as tot_complaints_per_year FROM ``dezc-project-nyc311.nyc_311_prod.mart_heat_hotwater`` GROUP BY year, month ORDER BY year DESC, month DESC`
+[^3]:[Wikipedia - New York City](https://en.wikipedia.org/wiki/New_York_City)
+[^4]:[Wikipedia - Boroughs of NYC](https://en.wikipedia.org/wiki/Boroughs_of_New_York_City)
+[^5]: Calculated through data queried in the NYC 311 data: `SELECT year, month, SUM(total_complaints) as tot_complaints_per_year FROM ``dezc-project-nyc311.nyc_311_prod.mart_heat_hotwater`` GROUP BY year, month ORDER BY year DESC, month DESC`
