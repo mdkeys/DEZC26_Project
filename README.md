@@ -9,7 +9,7 @@ This final project for the 2026 Data Engineering Zoomcamp consists of an end-to-
 - [Dashboard](#dashboard)
 - [Data Source](#data-source)
 - [Pipeline Details](#pipeline-details)
-- [Reproducibility](#reproducibility)
+- [Reproducing This Project](#reproducing-this-project)
 
 ---
 
