@@ -38,7 +38,7 @@ models:
           - not_null
           - accepted_values:
               values: ['MANHATTAN', 'BROOKLYN', 'QUEENS', 'BRONX', 'STATEN ISLAND']
-      - name: complaint_type
+      - name: complaint_category
         description: "Housing maintenance complaint category."
         tests:
           - not_null
@@ -75,7 +75,7 @@ models:
         description: "NYC borough."
         tests:
           - not_null
-      - name: complaint_category
-        description: "Housing maintenance complaint category."
+      - name: complaint_type
+        description: "Housing maintenance complaint type."
         tests:
           - not_null
