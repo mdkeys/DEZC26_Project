@@ -10,7 +10,7 @@
                 'interval': 1
             }
         },
-        cluster_by=['borough', 'complaint_type']
+        cluster_by=['borough', 'complaint_category']
     )
 }}
 

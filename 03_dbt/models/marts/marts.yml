@@ -75,7 +75,7 @@ models:
         description: "NYC borough."
         tests:
           - not_null
-      - name: complaint_type
-        description: "Housing maintenance complaint type."
+      - name: complaint_category
+        description: "Housing maintenance complaint category."
         tests:
           - not_null
