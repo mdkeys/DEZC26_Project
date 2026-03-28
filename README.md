@@ -1,16 +1,25 @@
-# NYC Housing Maintenance 311 Complaints — Data Engineering Project
+# Housing Maintenance Trends Using NYC 311 Complaints
 
-A end-to-end data engineering pipeline analyzing NYC 311 housing maintenance complaints from 2020 to present. The project focuses on heat & hot water failures, agency response times, and chronic complaint hotspots by community district — surfacing where the city's housing enforcement system is failing tenants and whether conditions are improving or deteriorating over time.
+## About: 
+
+This final project for the 2026 Data Engineering Zoomcamp consists of an end-to-end pipeline analyzing NYC 311 housing-related maintenance complaints from 2020 to present. The project focuses on seasonal heat & hot water issues and complaint resolution times to categories of housing-related complaints logged in the 311 system. 
+
+_Note: The primary purpose of this project is to demonstrate the ability to build a reproducible data pipeline. Given this, the actual analysis is being kept at a high-level._
 
 ---
 
-## Problem Statement
+## Background & Problem Statement
 
-New York City receives hundreds of thousands of housing maintenance complaints through its 311 system every year. Heat and hot water complaints alone reached 250,000+ in 2024–2025, more than double the number in 2016. This project builds a data pipeline to analyze:
+New York City (NYC) is the most populous city in the United States with 8.5 million residents living within the five boroughs (Manhattan, Queens, Bronx, Brooklyn, and Staten Island)[^1]. The NYC 311 system receives hundreds of thousands of housing-related complaints every year. Some of these complaints, such as heat and hot water, tend to be seasonal in nature, rising during the colder months. Other complaints, such as issues with plumbing, interior and electric repairs, elevators, and unsanitary conditions, are less likely to follow a predictable seasonal pattern. 
 
-1. **Heat & Hot Water Failure Patterns** — How do complaints spike during heat season (October–May) by borough, and is the problem getting worse over time?
-2. **Housing Maintenance Response Times** — Which boroughs receive faster agency responses, and where are the largest disparities?
-3. **Geographic Heatmap** -- What is the spatial distribution of housing complaints across NYC?
+Given the city's budget deficit,[^2] it is necessary for the city to understand the pattern of housing-related complaints in order to allocate resources efficiently. Additionally, given the vast area that NYC covers (300 square miles over the five boroughs),[^1] the 311 data allows city officials a glance at where complaints are occuring and if there are disparities in the resolution times between the five boroughs.
+
+This project builds a data pipeline to analyze:
+
+1. **Seasonal patterns in housing complaint categories:** Which complaint categories follow a seasonal pattern?
+2. **Seasonal patterns in heat & hot water issues, by borough:** Are there differences in the seasonal patterns or number of complaints related to heat & hot water issues by borough? 
+3. **Resolution times to housing complaint categories, by borough:** What are the average resolution times to different categories of 311 requests? Are there differences in resolution time by borough?
+4. **Geographic heatmap:** What is the spatial distribution of all housing-related complaints across NYC? Are there any notable areas with a high number of complaints?
 
 ---
 
@@ -18,22 +27,53 @@ New York City receives hundreds of thousands of housing maintenance complaints t
 
 > 📊 [View Live Dashboard](https://lookerstudio.google.com/reporting/c71e9a02-354d-4846-86e3-af7d35012d9f) 
 
-The dashboard contains 3 tiles:
-- **Heat & Hot Water Complaints Over Time** — monthly trend by borough with heat season filter
-- **Housing Maintenance Response Times by Borough** — avg resolution days by borough and complaint category
-- **Geographic Heatmap** — spatial distribution of housing complaints across NYC
+**Seasonal patterns in housing complaint categories:** 
+![Dashboard Screenshot](images/Tile1.png)
 
-![Dashboard Screenshot](images/Tiles1-2.png)
-![Dashboard Screenshot](images/Tiles3.png)
+The first figure displays the number of 311 complaints by complaint category over time. While 'heat / hot water' complaints show a clear seasonal pattern with peaks between the fall and spring months (~September to May), other categories of housing complaints do not show a clear seasonal pattern. 
+
+**Seasonal patterns in heat & hot water issues, by borough:** 
+![Dashboard Screenshot](images/Tile2.png)
+
+Drilling into heat and hot water complaints, we see the seasonal trend is similar across all five boroughs. Despite the Bronx having the second lowest population of the boroughs,[^3] Bronx residents consistently report the highest number of 311 complaints related to heat and hot water. 
+
+_In a separate analysis of the data,[^4] we see the number of heat and hot water complaints has been steadily increasing over time. The number of complaints in 2025 nearly doubled the number reported in 2020 (315k and 165k, respectively). The city faced an especially harsh winter season at the start of 2026 with two major storms and multiple cold fronts hitting the city. This accounts for the 30k complaint increase in the number of heat and hot water complaints reported in the first two months of 2026 than the prior year._ 
+
+**Resolution times to housing complaint categories, by borough:**
+![Dashboard Screenshot](images/Tile3.png)
+
+Looking at agency's resolution times to different complaints acorss the five boroughs, there is a noticable difference in the urgency with which agencies respond to heat and hot water complaints (average of 2-3 days across all boroughs) than other categories of complaints. Across electric/appliance and other complaint categories, Manhattan appears to be an outlier with an average resolution time of 10 or more days longer than what residents of the other boroughs experience. On average, plumbing and water leak issues take an additional week in Manhattan compared to other boroughs. Elevator repairs appear to take longer on average across all boroughs (30+ days) compared to other complaint types. 
+
+**Geographic heatmap:**
+![Dashboard Screenshot](images/Tile4.png)
+
+At a glance, upper Manhattan and the Bronx, along with central parts of Brooklyn (Flatbush, Crown Heights) appear to be sources for a larger number of 311 complaints across NYC. When zooming in on the [Live Dashboard](https://lookerstudio.google.com/reporting/c71e9a02-354d-4846-86e3-af7d35012d9f), there are two very noticable hotspots in the Bronx with a concentration of over 20k complaints over the Jan 2020 - Feb 2026 time period (Tiebout Ave north of E 181st St, and Woodycrest Ave north of W 162nd St.) 
+
+**Take-aways:**
+- **Heat and hot water complaints:** Agencies responsible for heat and hot water complaints should structure their resources to meet increased demand during the peak months (Sept - May). At present, these agencies appear to be effectively addressing the heat and hot water issues in a timely manner across all boroughs (average of 2 days). The city may want to investigate the disproportionately high number of complaints reported from Bronx residents.
+- **Resolution times across complaint categories:** The city may want to investigate why many housing-related complaints in Manhattan take over a week longer than their counterparts in other boroughs. Additionally, given that elevators are sometimes the only way that residents can accessibly move to and from their apartments, the city may want to look into how to reduce repair times for elevator-related issues.
+- **Geographic heatmap:** For future analysis, it would be interesting to look into complaints at the two hotspots identified on the heatmap. Without further analysis, it's unclear if these spots have a large number of different or re-occurring complaints, or a large number 311 requests submitted for the same complaint. 
 
 ---
 
 ## References
+- [^1]:[Wikipedia - New York City](https://en.wikipedia.org/wiki/New_York_City)
+- [^2]:[NYS Comptroller - NYC Budget Reveals Structural Gaps](https://www.osc.ny.gov/press/releases/2026/03/dinapoli-nyc-budget-increases-transparency-reveals-structural-gaps)
+- [^3]:[Wikipedia - Boroughs of NYC](https://en.wikipedia.org/wiki/Boroughs_of_New_York_City)
+- [^4]: Calculated through data queried in the NYC 311 data:
+```sql
+-- Count of 'HEAT/HOT WATER' complaints per month/year
+SELECT year, month, SUM(total_complaints) as tot_complaints_per_year 
+FROM `dezc-project-nyc311.nyc_311_prod.mart_heat_hotwater`
+GROUP BY year, month
+ORDER BY year DESC, month DESC 
+```
 
+Other related readings:
 - [NYC Comptroller — Turn Up the Heat: 2025 Update](https://comptroller.nyc.gov/reports/turn-up-the-heat-2025-update/)
 - [City Limits — No Heat Complaints Hit New Highs](https://citylimits.org/no-heat-complaints-in-nyc-apartments-hit-new-highs-last-year-heres-how-to-get-help/)
 - [Violation Watch — NYC 311 Complaints Housing](https://violationwatch.nyc/nyc-311-complaints-housing/)
-- [NYC Open Data — 311 Service Requests](https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2020-to-Present/erm2-nwe9)
+
 
 ---
 
