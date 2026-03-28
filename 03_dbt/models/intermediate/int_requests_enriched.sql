@@ -17,6 +17,8 @@ enriched as (
         due_date,
         complaint_type,
         descriptor,
+        descriptor_2,
+        resolution_description,
         location_type,
         status,
         agency,
@@ -30,6 +32,19 @@ enriched as (
         longitude,
         year,
         month,
+
+        -- derived: complaint category
+        case
+            when complaint_type = 'HEAT/HOT WATER'  then 'HEAT_HOTWATER'
+            when complaint_type in ('PLUMBING', 'WATER LEAK') then 'PLUMBING_WATERLEAK'
+            when complaint_type in ('ELECTRIC', 'APPLIANCE') then 'ELECTRIC_APPLIANCE'
+            when complaint_type = 'Elevator' then 'ELEVATOR'
+            when complaint_type in (
+                'DOOR/WINDOW', 'FLOORING/STAIRS', 'GENERAL',
+                'PAINT/PLASTER', 'UNSANITARY CONDITION'
+            ) then 'OTHER'
+            else 'OTHER'
+        end as complaint_category,
 
         -- derived: resolution time in days
         case

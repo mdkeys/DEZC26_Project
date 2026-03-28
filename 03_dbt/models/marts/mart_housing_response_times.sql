@@ -18,11 +18,8 @@
     Analysis 2: Housing Maintenance Response Times by Borough
     
     Shows average resolution time for housing maintenance complaints by borough,
-    complaint type, and year. Surfaces disparities in agency response across boroughs.
+    complaint category, and year. Surfaces disparities in agency response across boroughs.
     
-    Key insight: ~28% of all housing complaints are closed without a confirmed
-    inspection (Violation Watch, 2025). Resolution time disparities by borough
-    point to resource allocation gaps in city enforcement.
 */
 
 with enriched as (
@@ -32,7 +29,7 @@ with enriched as (
 response_times as (
     select
         borough,
-        complaint_type,
+        complaint_category,
         year,
 
         count(unique_key)                                       as total_complaints,
@@ -53,10 +50,10 @@ response_times as (
         )                                                       as pct_resolved_within_30_days
 
     from enriched
-    where complaint_type in {{ housing_complaint_types() }}
+    where complaint_category in {{ housing_complaint_types() }}
     group by
         borough,
-        complaint_type,
+        complaint_category,
         year
 )
 

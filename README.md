@@ -20,7 +20,7 @@ New York City receives hundreds of thousands of housing maintenance complaints t
 
 The dashboard contains 3 tiles:
 - **Heat & Hot Water Complaints Over Time** — monthly trend by borough with heat season filter
-- **Housing Maintenance Response Times by Borough** — avg resolution days by borough and complaint type
+- **Housing Maintenance Response Times by Borough** — avg resolution days by borough and complaint category
 - **Geographic Heatmap** — spatial distribution of housing complaints across NYC
 
 ![Dashboard Screenshot](images/Tiles1-2.png)
@@ -60,6 +60,7 @@ The dashboard contains 3 tiles:
   - However this project updates on a monthly basis, updating on the 2nd of each month.
 - **Columns used:** 19 selected columns: unique_key, created_date, closed_date, complaint_type, descriptor,descriptor_2, resolution_description, location_type, status, agency, borough, incident_zip, community_board, council_district, police_precinct, due_date, city, latitude, longitude
 - **Housing complaint types analyzed:** HEAT/HOT WATER, PLUMBING, WATER LEAK, FLOORING/STAIRS, ELECTRIC, APPLIANCE, PAINT/PLASTER, DOOR/WINDOW, UNSANITARY CONDITION, GENERAL, Elevator
+- **(Derived Column) Housing complaint categories:** 'HEAT_HOTWATER' (HEAT/HOT WATER), 'PLUMBING_WATERLEAK' (PLUMBING, WATER LEAK), 'ELECTRIC_APPLIANCE' (ELECTRIC, APPLIANCE), 'ELEVATOR' ('Elevator'), 'OTHER' (DOOR/WINDOW, FLOORING/STAIRS, GENERAL, PAINT/PLASTER, UNSANITARY CONDITION)
 
 ---
 
@@ -348,7 +349,7 @@ Note: If you already have an account and a project in dbt Cloud under a solo dev
   - **stg_311_requests.sql** is the first transformation layer. Deduplicates rows by unique_key, casts all columns to proper types (Socrata returns everything as strings), standardizes columns, uses regex to safely extract numeric values from messy council_district and police_precinct fields, and filters out rows with null keys, null dates, or invalid boroughs.
   - **stg_311_requests.yml** defines column descriptions and data quality tests for the staging model — including unique and not_null on unique_key, and accepted_values tests on status and borough.
 - **models/intermediate/**
-  - **int_requests_enriched.sql** is the enrichment laywer that derives four new fields from the staging columns: 'resolution_days', 'is_resolved', 'time_of_day', and 'day_of_week'. 
+  - **int_requests_enriched.sql** is the enrichment laywer that derives five new fields from the staging columns: 'complaint_category', 'resolution_days', 'is_resolved', 'time_of_day', and 'day_of_week'. 
 - **models/marts/**
   - **marts.yml** defines column descriptions and data quality tests for all 3 mart tables, including not_null, unique, and accepted_values tests on key columns.
   - **mart_heat_hotwater.sql** aggregates `HEAT/HOT WATER` complaints  by borough, year, month, and season (heat season Oct–May, vs non-heat season). Outputs complaint volume, resolution rate, and avg resolution days per group. Powers the heat & hot water trend tile in Looker Studio.
