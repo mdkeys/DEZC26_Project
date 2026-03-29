@@ -4,7 +4,7 @@ dbt Cloud connects to BigQuery and runs the transformation layer: A staging mode
 
 **dbt Lineage**
 
-![dbt Lineage Graph](DEZC26_PROJECT/images/dbt_lineage.png)
+![dbt Lineage Graph](../images/dbt_lineage.png)
 
 The dbt project follows a three-layer architecture:
 - **Staging** (`stg_311_requests`) — type casting, deduplication, borough standardization
