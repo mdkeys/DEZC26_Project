@@ -82,6 +82,8 @@ At a glance, upper Manhattan and the Bronx, along with central parts of Brooklyn
 
 ## Architecture
 
+![Architecture Screenshot](images/architecture.png)
+
 | Layer | Tool | Purpose |
 |---|---|---|
 | Infrastructure | Terraform | Provisions GCS bucket and BigQuery datasets on GCP |
