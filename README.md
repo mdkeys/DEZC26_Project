@@ -16,13 +16,13 @@ This final project for the 2026 Data Engineering Zoomcamp consists of an end-to-
 
 ## Background & Problem Statement
 
-New York City (NYC) is the most populous city in the United States with 8.5 million residents living within the five boroughs (Manhattan, Queens, Bronx, Brooklyn, and Staten Island)[^1]. The NYC 311 system receives hundreds of thousands of housing-related complaints every year. Some of these complaints, such as heat and hot water, tend to be seasonal in nature, rising during the colder months. Other complaints, such as issues with plumbing, interior and electric repairs, elevators, and unsanitary conditions, are less likely to follow a predictable seasonal pattern. 
+New York City (NYC) is the most populous city in the United States with 8.5 million residents living within the five boroughs (Manhattan, Queens, Bronx, Brooklyn, and Staten Island)[^1]. The NYC 311 system receives hundreds of thousands of housing-related complaints every year. Some of these complaints, such as heat and hot water, tend to be seasonal in nature. Other complaints, such as issues with plumbing, interior and electric repairs, elevators, and unsanitary conditions, are less likely to follow a predictable seasonal pattern. 
 
 Given the city's budget deficit,[^2] it is necessary for the city to understand the pattern of housing-related complaints in order to allocate resources efficiently. Additionally, given the vast area that NYC covers (300 square miles over the five boroughs),[^3] the 311 data allows city officials a glance at where complaints are occurring and if there are disparities in the resolution times between the five boroughs.
 
 This project builds a data pipeline to analyze:
 
-1. **Seasonal patterns:** Which complaint categories follow a seasonal pattern?
+1. **Seasonal patterns:** Which housing-related complaint categories follow a seasonal pattern?
 2. **Heat & hot water complaints:** Are there differences between boroughs in the seasonal patterns or number of complaints related to heat & hot water issues? 
 3. **Resolution times:** What are the average resolution times to different categories of 311 requests? Are there differences in resolution time by borough?
 4. **Geographic heatmap:** What is the spatial distribution of all housing-related complaints across NYC? Are there any notable areas with a high number of complaints?
@@ -36,33 +36,33 @@ This project builds a data pipeline to analyze:
 ![Dashboard Screenshot](images/Tile1.png)
 
 **Seasonal patterns only appear for heat & hot water complaints.** 
-The first figure displays the number of 311 complaints by complaint category over time. While 'heat / hot water' complaints show a clear seasonal pattern with peaks between the fall and spring months (~September to May), other categories of housing complaints do not show a clear seasonal pattern. 
+The first figure displays the number of 311 complaints by complaint category over time. While heat and hot water complaints show a clear seasonal pattern with peaks between the fall and spring months (September to May), other categories of housing complaints do not show a clear seasonal pattern. 
 
 
 ![Dashboard Screenshot](images/Tile2.png)
 
 **Seasonal patterns in heat & hot water issues are similar across boroughs.** 
-Drilling into heat and hot water complaints, we see the seasonal trend is similar across all five boroughs. Despite the Bronx having the second lowest population of the boroughs,[^4] Bronx residents consistently report the highest number of 311 complaints related to heat and hot water. 
+Looking only at heat and hot water complaints, we see the seasonal trend is similar across all five boroughs. Despite the Bronx having the second lowest population of the five boroughs,[^4] Bronx residents consistently report the highest number of 311 complaints related to heat and hot water every year. 
 
-_In a separate analysis of the data,[^5] we see the number of heat and hot water complaints has been steadily increasing over time. The number of complaints in 2025 nearly doubled the number reported in 2020 (315k and 165k, respectively). The city faced an especially harsh winter season at the start of 2026 with two major storms and multiple cold fronts hitting the city. This accounts for the 30k complaint increase in the number of heat and hot water complaints reported in the first two months of 2026 than the prior year._ 
+_A separate analysis of the data shows the number of heat and hot water complaints has been steadily increasing over time.[^5] The number of complaints in 2025 was almost doubled the number reported in 2020 (315k and 165k, respectively). The city faced an especially harsh winter season at the start of 2026 with two major storms and multiple cold fronts hitting the city. This likely accounts for the increase of 30k heat and hot water complaints reported in the first two months of 2026 compared to the prior year._ 
 
 
 ![Dashboard Screenshot](images/Tile3.png)
 
-**Resolution times are low for heat & hot water complaints. Manhattan has higher average resolution times across other complaint categories.**
-Looking at agencies' resolution times to different complaints across the five boroughs, there is a noticeable difference in the urgency with which agencies respond to heat and hot water complaints (average of 2-3 days across all boroughs) than other categories of complaints. Across electric/appliance and other complaint categories, Manhattan appears to be an outlier with an average resolution time of 10 or more days longer than what residents of the other boroughs experience. On average, plumbing and water leak issues take an additional week in Manhattan compared to other boroughs. Elevator repairs appear to take longer on average across all boroughs (30+ days) compared to other complaint types. 
+**Resolution times are much faster for heat & hot water complaints than for other housing-related issues. Manhattan has longer average resolution times across other complaint categories.**
+Looking at agencies' resolution times to different complaints across the five boroughs, there is a noticeable difference in the urgency with which agencies respond to heat and hot water complaints (average of 2-3 days across all boroughs) than other categories of complaints. Elevator repairs take longer on average across all boroughs (30+ days) compared to other complaint types. Across 'electric/appliance' and 'other' complaint categories, Manhattan appears to be an outlier with an average resolution time of 10 or more days longer than for other boroughs. On average, plumbing and water leak issues take an additional week in Manhattan compared to other boroughs. 
 
 
 ![Dashboard Screenshot](images/Tile4.png)
 
-**A geographic heatmap shows higher concentration in upper Manhattan, central Brooklyn, and much of the Bronx.**
-At a glance, upper Manhattan and the Bronx, along with central parts of Brooklyn (Flatbush, Crown Heights) appear to be sources for a larger number of 311 complaints across NYC. When zooming in on the [Live Dashboard](https://lookerstudio.google.com/reporting/c71e9a02-354d-4846-86e3-af7d35012d9f), there are two very noticable hotspots in the Bronx with a concentration of over 20k complaints over the Jan 2020 - Feb 2026 time period (Tiebout Ave north of E 181st St, and Woodycrest Ave north of W 162nd St.) 
+**A geographic heatmap shows a higher concentration of complaints in upper Manhattan, central Brooklyn, and much of the Bronx.**
+At a glance, upper Manhattan and the Bronx, along with central parts of Brooklyn (Flatbush, Crown Heights) appear to be sources for a larger number of 311 complaints across NYC. When zooming in on the [Live Dashboard](https://lookerstudio.google.com/reporting/c71e9a02-354d-4846-86e3-af7d35012d9f), there are two very noticable hotspots in the Bronx with a concentration of over 20k complaints over the Jan 2020 - Feb 2026 time period (Tiebout Ave north of E 181st St, and Woodycrest Ave north of W 162nd St). 
 
 
-**Take-aways:**
-- **Heat and hot water complaints:** Agencies responsible for heat and hot water complaints should structure their resources to meet increased demand during the peak months (Sept - May). At present, these agencies appear to be effectively addressing the heat and hot water issues in a timely manner across all boroughs (average of 2 days). The city may want to investigate the disproportionately high number of complaints reported in the Bronx.
-- **Resolution times across complaint categories:** The city may want to investigate why many housing-related complaints in Manhattan take over a week longer than their counterparts in other boroughs. Additionally, given that elevators are sometimes the only way that residents can accessibly move to and from their apartments, the city may want to look into how to reduce repair times for elevator-related issues.
-- **Geographic heatmap:** For future analysis, it would be interesting to look into complaints at the two hotspots identified on the heatmap. Without further analysis, it's unclear if these spots have a large number of different or re-occurring complaints, or a large number 311 requests submitted for the same complaint. 
+**Take-aways:** 
+- **Heat and hot water complaints:** Agencies responsible for heat and hot water complaints should structure their resources to meet increased demand during the peak months (Sept - May). At present, these agencies appear to be effectively addressing the heat and hot water issues in a timely manner across all boroughs with an average of 2-3 days to resolve complaints. The city may want to investigate the disproportionately high number of heat and hot water complaints reported in the Bronx.
+- **Resolution times across complaint categories:** The city may want to investigate why certain housing-related complaints in Manhattan take over a week longer than their counterparts in other boroughs. Additionally, given that elevators are sometimes the only way that residents can accessibly move to and from their apartments, the city may want to look into how to reduce repair times for elevator-related issues.
+- **Geographic heatmap:** Future analysis should compare population density of hot spots to determine if the larger number of complaints is disproportionate with population size. It would also be interesting to look into complaints at the two hotspots identified in the Bronx. Without further analysis, it's unclear if these hotspots have a large number of different or re-occurring complaints, or a large number 311 requests submitted for the same complaint. 
 
 ---
 
@@ -71,7 +71,7 @@ At a glance, upper Manhattan and the Bronx, along with central parts of Brooklyn
 - **Dataset:** [NYC 311 Service Requests from 2020 to Present](https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2020-to-Present/erm2-nwe9)
 - **Provider:** NYC Open Data (Socrata API)
 - **Update frequency:** Daily
-  - Note: This project updates on a monthly basis, updating on the 2nd of each month.
+  - Note: The project pipeline updates on a monthly basis on the 2nd of each month.
 - **Columns used:** 19 selected columns: unique_key, created_date, closed_date, complaint_type, descriptor, descriptor_2, resolution_description, location_type, status, agency, borough, incident_zip, community_board, council_district, police_precinct, due_date, city, latitude, longitude
 - **Housing complaint types analyzed:** HEAT/HOT WATER, PLUMBING, WATER LEAK, FLOORING/STAIRS, ELECTRIC, APPLIANCE, PAINT/PLASTER, DOOR/WINDOW, UNSANITARY CONDITION, GENERAL, Elevator
 - **(Derived Column) Housing complaint categories:** 'HEAT_HOTWATER' (HEAT/HOT WATER), 'PLUMBING_WATERLEAK' (PLUMBING, WATER LEAK), 'ELECTRIC_APPLIANCE' (ELECTRIC, APPLIANCE), 'ELEVATOR' ('Elevator'), 'OTHER' (DOOR/WINDOW, FLOORING/STAIRS, GENERAL, PAINT/PLASTER, UNSANITARY CONDITION)
@@ -91,7 +91,7 @@ At a glance, upper Manhattan and the Bronx, along with central parts of Brooklyn
 | Transformation | dbt Cloud | Cleans, enriches, and aggregates data into mart tables |
 | Dashboard | Looker Studio | Visualizes housing complaint trends and hotspots using mart tables in BigQuery |
 
-More details on GCS, BigQuery are below. For more details on the functions and files used by Terraform, Kestra, and dbt, see the 'README.md' files in the respective folders. 
+More details on GCS and BigQuery are below. For more details on the functions and files used by Terraform, Kestra, and dbt, see the 'README.md' files in the respective folders. 
 
 ### GCS
 
@@ -109,7 +109,7 @@ Two datasets in BigQuery:
 - `nyc_311_raw` — external table pointing at GCS Parquet files
 - `nyc_311_prod` — dbt-managed transformed tables (staging views + mart tables)
 
-The external table uses Hive partitioning (`year=YYYY/month=MM`) for efficient time-range queries.
+The external table uses partitioning (`year=YYYY/month=MM`) for efficient time-range queries.
 
 BigQuery tables are partitioned and clustered to optimize query performance and reduce costs:
 
@@ -128,7 +128,7 @@ BigQuery tables are partitioned and clustered to optimize query performance and 
 - GCP account with billing enabled
 - Terraform >= 1.0
 - Docker Desktop
-- dbt (instructions are tailored for free tier of dbt Cloud account)
+- dbt (instructions are tailored for free tier of dbt Cloud)
 - Socrata app token for NYC Open Data 
 
 The following steps assume that you are starting from scratch and do not have accounts set up.
@@ -152,10 +152,12 @@ DEZC26_Project/
 │   ├── variables.tf
 │   ├── outputs.tf
 │   └── terraform.tfvars.example
+│   └── README.md
 ├── 02_kestra/
 │   ├── docker-compose.yml      # Kestra + Postgres containers
 │   └── flows/
 │       └── nyc_311_ingestion.yml  # Orchestration flow
+│   └── README.md
 ├── 03_dbt/
 │   ├── dbt_project.yml
 │   ├── macros/
@@ -172,6 +174,7 @@ DEZC26_Project/
 │           ├── mart_housing_response_times.sql
 │           ├── mart_complaints_geo.sql
 │           └── marts.yml
+│   └── README.md
 ├── .env.example
 ├── .gitignore
 └── README.md
@@ -277,11 +280,7 @@ echo SECRET_GCP_PROJECT_ID=$(echo -n "your_project_id" | base64) >> .env_encoded
 2. . Check GCS to verify the Parquet file landed at 'nyc_311/year=2020/month=01/data.parquet'. 
 3. Check BigQuery to verify the external table 'nyc_311_raw' was created. 
    1. Go to BigQuery --> Studio. You should see the 'external_311_requests' table under the 'nyc_311_raw'.
-   2. Run a query to confirm row counts (replace 'your-gcp-project-id' first): 
-   ```
-   SELECT COUNT(*) FROM `your-gcp-project-id.nyc_311_raw.external_311_requests`
-   ```
-   (20,352,481 rows)
+   2. Run a query to confirm row counts (replace 'your-gcp-project-id' first): `SELECT COUNT(*) FROM ``your-gcp-project-id.nyc_311_raw.external_311_requests`. (20,352,481 rows)
 4.  If the parquet file is available and the BigQuery table was created, run the full backfill. [This took me about 70 minutes]
    1. Go to 'nyc_311_ingestion' flow
    2. Click 'Execute'
@@ -292,12 +291,12 @@ echo SECRET_GCP_PROJECT_ID=$(echo -n "your_project_id" | base64) >> .env_encoded
       2. If the backfill fails partway through, you can rerun just the failed month using the single month mode (`--year YYYY --month MM`) without rerunning everything.
       3. If you rerun the flow for a month, it will overwrite the existing file (you will not have duplicate files in GCS). 
 
-### 6F. Set up monthly trigger (Option) 
-1.  After the backfill is successful, change the monthly schedule trigger in 'nyc_311_ingestion'. Set it from `disabled: true` to `disabled: false`. This enables the monthly schedule to activate and fire on the 2nd of each month at 6am UTC going forward. 
+### 6F. Set up monthly trigger 
+1.  After the backfill is successful, change the monthly schedule trigger in 'nyc_311_ingestion'. Set it from `disabled: true` to `disabled: false`. This enables the monthly batch schedule to activate and fire on the 2nd of each month at 6am UTC going forward. 
 
 
 ## Step 7: Set up dbt Cloud
-Note: If you already have an account and a project in dbt Cloud under a solo developer (free) account, you will need to delete the existing project and update the BigQuery connection JSON file. 
+Note: If you already have an account and a project in dbt Cloud under a solo developer (free) account, you will need to delete the existing project and update the BigQuery connection JSON file. _You can also run this in DuckDB but I do not include instructions for that here._
 
 1. Create a free account at [cloud.getdbt.com](https://cloud.getdbt.com)
    1. Name the new project: nyc-311-de-project
@@ -315,7 +314,7 @@ Note: If you already have an account and a project in dbt Cloud under a solo dev
    4. Under 'Project details' click 'Edit' and set the project subdirectory to '03_dbt' — this tells dbt Cloud where your dbt project lives inside the repo.
 4. Initialize the dbt project
    1. In dbt Cloud, go to Studio (top left)
-   2. Before you initialize, make sure the previous files and your '03_dbt' folder are synced to the main branch in Github. dbt Cloud will need the '03_dbt' folder present to initialize in the next step. _(I ran into issues when I did not have the folder already present)_
+   2. Before you initialize, make sure the previous files and your '03_dbt' folder are synced to the main branch in Github. dbt Cloud will need the '03_dbt' folder present to initialize in the next step. _(I ran into issues when I did not have the folder already present before attempting to initialize.)_
    3. Click 'Initialize dbt project' — this creates the default folder structure inside '03_dbt' or identifies the existing structure. dbt will also create a lot of template files in the 03_dbt folder. 
       1. Delete the 'example' folder and its contents under 'models'
       2. If the dbt_project.yml contains an "example" line, delete it.
@@ -326,7 +325,6 @@ Note: If you already have an account and a project in dbt Cloud under a solo dev
 
 **Screenshot of BigQuery after running `dbt run`:**
 ![BigQuery Screenshot](images/bigquery.png)
-
 
 
 ## Step 8: Connect Looker Studio
@@ -341,6 +339,10 @@ Note: If you already have an account and a project in dbt Cloud under a solo dev
    3. Click Add --> Add to Report
    4. It will navigate you to the report page. From there, you can click 'Add Data' at the bottom and repeat the process above for the remaining 3 marts
 4. Build the tiles. _I am not including detailed instructions on how to create tiles in Looker. Claude was mostly useful for instructions but not always accurate._
+   1. Tile 1 uses mart_housing_response_times
+   2. Tile 2 uses mart_heat_hotwater
+   3. Tile 3 uses mart_housing_response_times
+   4. Tile 4 uses mart_complaints_geo
 
 ---
 
@@ -359,7 +361,7 @@ When you no longer need this project active, do the following to reduce your res
 ---
 
 ## Future improvements
-- **Kestra**: Ideally the 'nyc_311_ingestion' flow would identify the 'extract_311.py' script and be able to run it without having to load the 'extract_311.py' file into Kestra Namespaces. A future improvement would fix the location issue and prevent the need to manually load the 'extract_311.py' file. 
+- **Kestra**: Ideally the 'nyc_311_ingestion' flow would identify the 'extract_311.py' script and be able to run it without having to load the 'extract_311.py' file into Kestra Namespaces. A future improvement would fix a location issue I experienced in development and prevent the need to manually load the 'extract_311.py' file. 
   - The two mounts that were set up but did not work inside of 'docker-compose.yml' 
       1. ./flows: Intended for Kestra to watch this folder and auto-load any flow YAMLs it finds
       2. ./scripts: Intended to make 'extract_311.py' available inside the container at /scripts/
