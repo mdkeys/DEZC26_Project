@@ -29,7 +29,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/kestra-wd:/tmp/kestra-wd
       - ./flows:/flows                   # mounts your flow YAML files
-      - /Users/mishadavies/src/DEZC26_Project/00_scripts:/scripts    # mounts extract_311.py
+      - - ${PWD}/../00_scripts:/scripts    # mounts extract_311.py
     environment:
       KESTRA_CONFIGURATION: |
         datasources:
