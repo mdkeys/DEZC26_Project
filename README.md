@@ -303,9 +303,9 @@ echo SECRET_GCP_PROJECT_ID=$(echo -n "your_project_id" | base64) >> .env_encoded
 
 
 ## Step 7: Set up dbt Cloud
-Note: If you already have an account and a project in dbt Cloud under a solo developer (free) account, you will need to delete the existing project and update the BigQuery connection JSON file. 
+Note: If you already have an account and a project in dbt Cloud under a solo developer (free) account, you will need to delete the existing project and update the BigQuery connection JSON file.
 
-**UPDATE May 2026: "Making the pipeline truly end-to-end (May 2026 update)" for an updated method to use dbt Core for a truly end-to-end pipeline.**
+**Note May 2026:** The dbt Cloud instructions below requires a manual trigger every month. To create a truly end-to-end pipeline, see "Making the pipeline truly end-to-end (May 2026 update)" for an updated method to use dbt Core inside Kestra.
 
 1. Create a free account at [cloud.getdbt.com](https://cloud.getdbt.com)
    1. Name the new project: nyc-311-de-project
