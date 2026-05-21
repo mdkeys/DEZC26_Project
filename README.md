@@ -122,6 +122,11 @@ BigQuery tables are partitioned and clustered to optimize query performance and 
 | `mart_complaints_geo` | `year` (int range) | `borough`, `complaint_type` | Map tile queries filtered by year and complaint type |
 
 ---
+# Updates Post-Zoomcamp 
+- Kestra trigger failed because of a pyarrow package mismatch when the pipeline was run. Added "--no-cache-dir" into the section "beforeCommands: pip install..."
+- The pipeline was not automated end-to-end because it required manually running `dbt run` after Kestra load was complete. Instructions have been added on how to use dbt Core or the dbt Cloud API for a fully-automated pipeline process. 
+- *TO DO:* Some parts of the analysis should have been time-limited. A future update will update Looker so that Tile 3 shows only the last year and Tiles 1, 2, and 4 show the last 3 years of the data. The goal is for the timeline to update automatically every month. 
+---
 
 # Reproducing This Project 
 
@@ -298,7 +303,9 @@ echo SECRET_GCP_PROJECT_ID=$(echo -n "your_project_id" | base64) >> .env_encoded
 
 
 ## Step 7: Set up dbt Cloud
-Note: If you already have an account and a project in dbt Cloud under a solo developer (free) account, you will need to delete the existing project and update the BigQuery connection JSON file. _You can also run this in DuckDB but I do not include instructions for that here._
+Note: If you already have an account and a project in dbt Cloud under a solo developer (free) account, you will need to delete the existing project and update the BigQuery connection JSON file. 
+
+**UPDATE May 2026: "Making the pipeline truly end-to-end (May 2026 update)" for an updated method to use dbt Core for a truly end-to-end pipeline.**
 
 1. Create a free account at [cloud.getdbt.com](https://cloud.getdbt.com)
    1. Name the new project: nyc-311-de-project
@@ -351,7 +358,15 @@ Note: If you already have an account and a project in dbt Cloud under a solo dev
 ## Shutting Down the Project
 When you no longer need this project active, do the following to reduce your resource use and billing:
 1. **Stop Kestra (Docker).** From inside the '02_kestra/' folder in your terminal, run `docker-compose down`. This stops and removes Kestra and Postgres containers. _This does not delete anything in GCS or BigQuery._
-2. **Stop Docker Desktop.** Quit Docker Desktop
+2. **Clean up Docker files** 
+   1. Run `docker system df` to see docker usage
+   2. Run `docker volume prune` to remove unused volumes
+   3. Run `docker builder prune` to remove build cache. To remove ALL cache, run `docker builder prune --all`. This will require Docker to rebuild from scratch next time instead of cached layers. 
+   4. Run `docker image prune -a` to remove all images not used by an active container
+   5. Run `docker container prune` to remove unused containers
+   6. Verify the cleanup by running `docker system df` again
+   7. Then quit Docker Desktop when finished
+   8. Note: Next time you run `docker-compose up -d` for this project, Docker will re-download the `kestra/kestra:latest` and `postgres:16` images. 
 3. **No actions needed for**
    1. **dbt Cloud.** dbt Cloud is a web service and there is nothing running locally to shut down. Just close the browser tab. _If you are on the free plan and need to use dbt Cloud for a new project, you will need to delete this project._
    2. **Looker.** Just close the browser tab.
@@ -368,6 +383,110 @@ When you no longer need this project active, do the following to reduce your res
       1. ./flows: Intended for Kestra to watch this folder and auto-load any flow YAMLs it finds
       2. ./scripts: Intended to make 'extract_311.py' available inside the container at /scripts/
 
+## Making the pipeline truly end-to-end (May 2026 update)
+The April version of the pipeline was not truly end-to-end beacuse it required a manual trigger of dbt after Kestra execution. There are multiple ways I attempted to fix this to have a fully end-to-end pipeline. I am providing both options below, but was only able to confirm the first method works. Files have been updated to work with this first method.
+
+1. Use dbt Core
+2. Use dbt Cloud API 
+
+**1. dbt Core** 
+1. Download dbt Core: `pip3 install dbt-bigquery`
+   1. Run `dbt --version`. If you see dbt Cloud CLI, ask Claude for assistance re-installing dbt Core. In my case, I had to uninstall dbt and add it to my PATH to identify dbt Core. 
+   2. If you get output with `Core: -installed: 1.11.11 -latest: 1.11.11 - Up to date! Plugins: -bigquery: 1.11.1 - Up to date!` you can move on.
+2. Set up your profile so dbt Core can connect to BigQuery.
+   1. Create the '.dbt' folder and 'profiles.yml'
+      1. From any folder location, in terminal run: `mkdir -p ~/.dbt`. This will create a '/.dbt/' folder in your home directory outside of your repo. 
+      2. Run `nano ~/.dbt/profiles.yml`. This will create a 'profiles.yml' file outside of your repo to contain your GCP credentials. It should NEVER be commmitted to GitHub.
+      3. Paste the following into the 'profiles.yml' file & update the keyfile path:
+         ```
+         nyc_311:
+            target: dev
+            outputs:
+               dev:
+                  type: bigquery
+                  method: service-account
+                  project: dezc-project-nyc311
+                  dataset: nyc_311_prod
+                  threads: 4
+                  keyfile: /path/to/your/service-account-key.json
+               
+               prod:
+                  type: bigquery
+                  method: service-account-json
+                  project: dezc-project-nyc311
+                  dataset: nyc_311_prod
+                  threads: 4
+                  keyfile_json: "{{ env_var('GCP_SERVICE_ACCOUNT_JSON') }}"
+         ```
+      4. Save and exit nano by pressing `Ctrl+X` --> `Y` --> `Enter`
+      5. Note: I had to go into the 'dbt_project.yml' and change the profile name from 'default' to 'nyc_311'.
+      6. Navigate to '03_dbt' and run `dbt debug` to confirm dbt connection is working.
+      7. Run 'dbt build' to confirm dbt is working. 
+         1. I had to establish the DBT_PROJECT_ID by running `export DBT_PROJECT_ID=dezc-project-nyc311` and then re-running `dbt build` again.
+      8. In 'docker-compose.yml' in '02_kestra', updated the Kestra volumes section with 2 lines to mount '03_dbt' and '~/.dbt' as '/dbt_profiles' so the container has access to the 'profiles.yml' with credentials. 
+      ```
+      volumes:
+      - kestra-data:/app/storage
+      ...
+      - ${PWD}/../03_dbt:/dbt                # mounts dbt project files
+      - ${PWD}/../.dbt:/dbt_profiles         # mounts profiles.yml
+      ```
+      9. Restart kestra 
+      ```
+      cd 02_kestra
+      docker-compose down
+      docker-compose up -d
+      ```
+      10. Go to `http://localhost:8080` to open Kestra.
+      11. Paste the flow from 'nyc_311_ingestion_v3.yml' into the Kestra UI and save
+      12. Test with the most current year and month (e.g., year=2026, month=5)
+      13. Check Looker Studio. The charts should reflect the new data. 
+
+**2. dbt Cloud API** 
+Create a deployment job in dbt Cloud that executes automatically after Kestra. Use the 'nyc_311_ingestion_v2.yml' in Kestra. Unfortunately I could not fully test this to confirm it works because my free dbt Cloud plan prevents me from using the dbt Cloud API. 
+
+1. In dbt Cloud, create a Deployment Environment
+   1. Click Create Environment
+   2. Fill in:
+         Name: `Production`
+         Environment type: `Deployment`
+         dbt version: `Latest` (same as your dev environment)
+   3. Under Connection profiles click Assign profile → select your existing BigQuery connection
+   4. Under Deployment credentials:
+         Name: Create a unique name (e.g., DEZC26_Project)
+         Dataset: `nyc_311_prod` — this is where dbt writes the mart tables
+   5. Click 'Test Connection'
+   6. After the connection test is complete, click 'Create Profile'
+   7. Then assign the profile you just created to the environment
+   8. Click 'Save'
+2. Create a dbt Job
+   1. Under 'Jobs' click 'Create job' --> 'Deploy job'
+         Name: `nyc_311_monthly_run`
+         Environment: `Production` (the one you just created)
+         Commands: `dbt build`
+         Schedule: leave off — Kestra triggers it
+   2. Click 'Save'
+3. Update your secrets:
+   1. Click the '</> API trigger' link to view your Account ID and Job ID. Paste these into the code below.
+   2. To get your dbt Cloud API personal access token (PAT), go to your 'profile page' and click on 'API tokens' --> 'Personal tokens'. On the free dbt Cloud plan you can select any of the available PATs.
+   3. From inside your project root, add secrets to your `.env_envoded` file. Replace the placeholder values with your actual token, job ID, and account ID:
+      ```
+      echo SECRET_DBT_API_TOKEN=$(echo -n "your_api_token_here" | base64) >> .env_encoded
+      echo SECRET_DBT_JOB_ID=$(echo -n "your_job_id_here" | base64) >> .env_encoded
+      echo SECRET_DBT_ACCOUNT_ID=$(echo -n "your_account_id_here" | base64) >> .env_encoded
+      ```
+4. Restart Kestra 
+   ```
+   cd 02_kestra
+   docker-compose down
+   docker-compose up -d
+   ```
+5. Update the flow in Kestra UI 
+   1. Go to `http://localhost:8080` and open the `nyc_311_ingestion` flow. Replace the flow with the updated `02_kestra/flows/nyc_311_ingestion_v2.yml` that contains a new Step 3 for triggering dbt Cloud to refresh the mart tables. 
+6. Test the flow
+   **Note** Due to API limitations, I was not able to test this. 
+   1. In kestra, run the flow manually with the most recent year and month of data (e.g., `year=2026` and `month=5`) to confirm all 4 tasks complete successfully: extract_and_upload, create_external_table, trigger_dbt_job, and log_success. 
+   2. In dbt Cloud, go to 'Deploy' --> 'Jobs' --> 'nyc_311_monthly_run' --> 'Run History'. You should see a run that was triggered with cause "Triggered by Kestra after ingestion"
 ---
 
 ## Related Readings & References 

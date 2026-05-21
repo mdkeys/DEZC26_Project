@@ -1,13 +1,15 @@
-id: nyc_311_ingestion
+id: nyc_311_ingestion_v2
 namespace: nyc_311
 
 description: |
-  **Use this version with instructions to use dbt Cloud. 
-  Requires manually running dbt Cloud after kestra tasks complete**
+  **Use this version if you are setting up Kestra to use the API from dbt Cloud 
+  to auto-trigger `dbt build` after Kestra completes monthly execution. Note that this
+  has not been verified by me to work because the dbt Cloud plan I am working with
+  does not include API use.**
   
   Extracts NYC 311 service request data from the Socrata API month by month,
   converts to Parquet, uploads to GCS, and creates/refreshes the BigQuery
-  external table pointing at the GCS data.
+  external table pointing at the GCS data. 
 
   Run modes:
   - Backfill: triggered manually with no inputs (processes 2020-01 to last completed month)
@@ -71,8 +73,63 @@ tasks:
         require_hive_partition_filter = false
       );
 
+# ------------------------------------------------------------------
+  # Task 3: Trigger dbt Cloud job to refresh mart tables
+  # Waits for the job to complete before marking this task as done
   # ------------------------------------------------------------------
-  # Task 3: Log completion
+  - id: trigger_dbt_job
+    type: io.kestra.plugin.scripts.python.Commands
+    containerImage: python:3.11-slim
+    beforeCommands:
+      - pip install --no-cache-dir requests --quiet
+    commands:
+      - |
+        python << 'EOF'
+        import requests
+        import time
+        import sys
+
+        API_TOKEN  = "{{ secret('DBT_API_TOKEN') }}"
+        ACCOUNT_ID = "{{ secret('DBT_ACCOUNT_ID') }}"
+        JOB_ID     = "{{ secret('DBT_JOB_ID') }}"
+
+        headers = {
+            "Authorization": f"Token {API_TOKEN}",
+            "Content-Type": "application/json"
+        }
+
+        # Trigger the job
+        trigger_url = f"https://cloud.getdbt.com/api/v2/accounts/{ACCOUNT_ID}/jobs/{JOB_ID}/run/"
+        payload = {"cause": "Triggered by Kestra after ingestion"}
+
+        print(f"Triggering dbt Cloud job {JOB_ID} on account {ACCOUNT_ID}...")
+        response = requests.post(trigger_url, headers=headers, json=payload)
+        response.raise_for_status()
+
+        run_id = response.json()["data"]["id"]
+        print(f"dbt job triggered. Run ID: {run_id}")
+
+        # Poll until complete
+        status_url = f"https://cloud.getdbt.com/api/v2/accounts/{ACCOUNT_ID}/runs/{run_id}/"
+        while True:
+            time.sleep(30)
+            status_response = requests.get(status_url, headers=headers)
+            status_response.raise_for_status()
+            run_data = status_response.json()["data"]
+            status = run_data["status"]
+            status_message = run_data.get("status_humanized", status)
+            print(f"dbt run status: {status_message}")
+
+            if status == 10:  # Success
+                print("dbt job completed successfully.")
+                break
+            elif status in (20, 30):  # Error or Cancelled
+                print(f"dbt job failed with status: {status_message}")
+                sys.exit(1)
+        EOF
+        
+  # ------------------------------------------------------------------
+  # Task 4: Log completion
   # ------------------------------------------------------------------
   - id: log_success
     type: io.kestra.plugin.core.log.Log
@@ -81,6 +138,7 @@ tasks:
       Year input:  {{ inputs.year ?? 'backfill' }}
       Month input: {{ inputs.month ?? 'backfill' }}
       External table: nyc_311_raw.external_311_requests
+      dbt marts refreshed: nyc_311_prod
 
 # ------------------------------------------------------------------
 # Schedule: run on the 2nd of each month at 6am UTC

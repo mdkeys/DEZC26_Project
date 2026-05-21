@@ -30,6 +30,8 @@ services:
       - /tmp/kestra-wd:/tmp/kestra-wd
       - ./flows:/flows                   # mounts your flow YAML files
       - ${PWD}/../00_scripts:/scripts    # mounts extract_311.py
+      - ${PWD}/../03_dbt:/dbt            # mounts dbt project files
+      - ${PWD}/../.dbt:/dbt_profiles     # mounts profiles.yml
     environment:
       KESTRA_CONFIGURATION: |
         datasources:
